@@ -38,7 +38,7 @@ export default function Home() {
         .from('registros')
         .select('*')
         .eq('user_id', user.id)
-        .gte('data', trintaDiasAtras.toISOString().split('T')[0]);
+        .gte('data_registro', trintaDiasAtras.toISOString().split('T')[0]);
 
       if (!rError && rData) {
         const gasto = rData.reduce((acc, curr) => acc + (curr.valor || 0), 0);

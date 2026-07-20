@@ -32,7 +32,7 @@ export default function HistoricoRegistros() {
           .from('registros')
           .select('*')
           .eq('veiculo_id', veiculoId)
-          .order('data', { ascending: false });
+          .order('data_registro', { ascending: false });
         if (rData) setRegistros(rData);
       } else {
         // Fetch ALL registros if no veiculoId
@@ -41,7 +41,7 @@ export default function HistoricoRegistros() {
           .from('registros')
           .select('*')
           .eq('user_id', user.id)
-          .order('data', { ascending: false });
+          .order('data_registro', { ascending: false });
         if (rData) setRegistros(rData);
       }
     } catch (err) {
@@ -129,7 +129,7 @@ export default function HistoricoRegistros() {
                   filteredRegistros.map((registro, idx) => {
                     const conf = getIcon(registro.tipo);
                     const isCombustivel = registro.tipo === 'combustivel';
-                    const dataObj = new Date(registro.data);
+                    const dataObj = new Date(registro.data_registro);
                     // Prevent timezone offset issue
                     const dataLocal = new Date(dataObj.getTime() + dataObj.getTimezoneOffset() * 60000);
 

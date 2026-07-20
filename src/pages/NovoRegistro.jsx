@@ -89,7 +89,7 @@ export default function NovoRegistro() {
         veiculo_id: veiculoId,
         user_id: user.id,
         tipo: selectedType,
-        data: dataRegistro,
+        data_registro: dataRegistro,
         hodometro: hodometro ? parseInt(hodometro) : null,
         valor: parseFloat(valor.replace(',', '.')),
         local,

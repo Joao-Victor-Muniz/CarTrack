@@ -35,8 +35,8 @@ export default function Relatorios() {
   const getFilteredRegistros = () => {
     const now = new Date();
     return registros.filter(r => {
-      if (!r.data) return false;
-      const dataReg = new Date(r.data);
+      if (!r.data_registro) return false;
+      const dataReg = new Date(r.data_registro);
       if (filtro === 'Mes') {
         return dataReg.getMonth() === now.getMonth() && dataReg.getFullYear() === now.getFullYear();
       }

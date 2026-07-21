@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { supabase } from '../services/supabase';
 
@@ -68,6 +68,17 @@ export default function NovoRegistro() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  // Calcula litros automaticamente
+  useEffect(() => {
+    if (selectedType === 'combustivel' && valor && precoLitro) {
+      const v = parseFloat(valor.toString().replace(',', '.'));
+      const p = parseFloat(precoLitro.toString().replace(',', '.'));
+      if (!isNaN(v) && !isNaN(p) && p > 0) {
+        setLitros((v / p).toFixed(2));
+      }
+    }
+  }, [valor, precoLitro, selectedType]);
 
   const handleSalvar = async () => {
     if (!veiculoId) {
@@ -219,17 +230,17 @@ export default function NovoRegistro() {
                       </div>
                       <div className="flex">
                           <div className="py-3.5 flex-1 border-r border-app-border pr-5">
-                              <label className="block text-[9px] font-bold text-app-textMuted uppercase tracking-[0.15em] mb-1.5">Litros</label>
-                              <div className="flex items-center justify-between">
-                                  <input type="number" step="0.01" value={litros} onChange={e => setLitros(e.target.value)} placeholder="0" className="bg-transparent w-full focus:outline-none text-neutral-600 font-semibold text-[15px] placeholder-neutral-600" />
-                                  <span className="text-[10px] font-bold text-neutral-600 ml-1">L</span>
-                              </div>
-                          </div>
-                          <div className="py-3.5 flex-1 pl-5">
                               <label className="block text-[9px] font-bold text-app-textMuted uppercase tracking-[0.15em] mb-1.5">Preço/L</label>
                               <div className="flex items-center gap-1">
                                   <span className="text-[10px] font-bold text-neutral-600 mt-0.5">R$</span>
-                                  <input type="number" step="0.01" value={precoLitro} onChange={e => setPrecoLitro(e.target.value)} placeholder="0.00" className="bg-transparent w-full focus:outline-none text-neutral-600 font-semibold text-[15px] placeholder-neutral-600" />
+                                  <input type="number" step="0.01" value={precoLitro} onChange={e => setPrecoLitro(e.target.value)} placeholder="0.00" className="bg-transparent w-full focus:outline-none text-white font-semibold text-[15px] placeholder-neutral-600" />
+                              </div>
+                          </div>
+                          <div className="py-3.5 flex-1 pl-5">
+                              <label className="block text-[9px] font-bold text-app-textMuted uppercase tracking-[0.15em] mb-1.5">Litros</label>
+                              <div className="flex items-center justify-between">
+                                  <input type="number" step="0.01" value={litros} onChange={e => setLitros(e.target.value)} placeholder="0" className="bg-transparent w-full focus:outline-none text-app-accent font-semibold text-[15px] placeholder-neutral-600" />
+                                  <span className="text-[10px] font-bold text-neutral-600 ml-1">L</span>
                               </div>
                           </div>
                       </div>

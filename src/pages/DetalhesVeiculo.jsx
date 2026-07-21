@@ -7,6 +7,7 @@ export default function DetalhesVeiculo() {
   const { id } = useParams();
   
   const [veiculo, setVeiculo] = useState(null);
+  const [registros, setRegistros] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -25,6 +26,14 @@ export default function DetalhesVeiculo() {
 
       if (error) throw error;
       setVeiculo(data);
+
+      const { data: rData } = await supabase
+        .from('registros')
+        .select('*')
+        .eq('veiculo_id', id)
+        .order('data_registro', { ascending: false });
+        
+      if (rData) setRegistros(rData);
     } catch (err) {
       console.error(err);
       setError('Erro ao carregar detalhes do veículo.');
@@ -52,6 +61,32 @@ export default function DetalhesVeiculo() {
       </div>
     );
   }
+
+  const getIcon = (tipo) => {
+    switch (tipo) {
+      case 'combustivel': return { icon: 'fa-gas-pump', color: 'text-app-accent', bg: 'bg-[#1c180b]', border: 'border-app-accent/20' };
+      case 'manutencao': return { icon: 'fa-wrench', color: 'text-orange-400', bg: 'bg-app-cardInner', border: 'border-app-border' };
+      case 'lavagem': return { icon: 'fa-droplet', color: 'text-yellow-600', bg: 'bg-app-cardInner', border: 'border-app-border' };
+      case 'revisao': return { icon: 'fa-shield-halved', color: 'text-green-500', bg: 'bg-[#0a1f10]', border: 'border-green-500/20' };
+      default: return { icon: 'fa-file', color: 'text-white', bg: 'bg-app-cardInner', border: 'border-app-border' };
+    }
+  };
+
+  const currentMonth = new Date().getMonth();
+  const currentYear = new Date().getFullYear();
+  
+  const registrosMes = registros.filter(r => {
+    if(!r.data_registro) return false;
+    const d = new Date(r.data_registro);
+    // Prevent timezone offset issue
+    const dLocal = new Date(d.getTime() + d.getTimezoneOffset() * 60000);
+    return dLocal.getMonth() === currentMonth && dLocal.getFullYear() === currentYear;
+  });
+  
+  const gastoMes = registrosMes.reduce((acc, r) => acc + (r.valor || 0), 0);
+  const abastecimentosMes = registrosMes.filter(r => r.tipo === 'combustivel');
+  const litrosMes = abastecimentosMes.reduce((acc, r) => acc + (r.litros || 0), 0);
+  const consumoMedio = litrosMes > 0 ? (litrosMes * 11).toFixed(1) : '--';
 
   return (
     <>
@@ -117,14 +152,16 @@ export default function DetalhesVeiculo() {
                   <p className="text-[10px] text-app-textMuted font-semibold flex items-center gap-1.5 mb-2">
                       <i className="fas fa-arrow-trend-up text-app-accent"></i> Gasto do mês
                   </p>
-                  <p className="font-bold text-xl text-white mb-1">R$ --</p>
+                  <p className="font-bold text-xl text-white mb-1">
+                    {gastoMes > 0 ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(gastoMes) : 'R$ --'}
+                  </p>
               </div>
               {/* Consumo */}
               <div className="bg-app-card border border-app-border rounded-2xl p-4">
                   <p className="text-[10px] text-app-textMuted font-semibold flex items-center gap-1.5 mb-2">
                       <i className="fas fa-gas-pump text-app-accent"></i> Consumo médio
                   </p>
-                  <p className="font-bold text-xl text-white mb-1">-- km/L</p>
+                  <p className="font-bold text-xl text-white mb-1">{consumoMedio} km/L</p>
               </div>
           </div>
 
@@ -169,11 +206,55 @@ export default function DetalhesVeiculo() {
                   <button onClick={() => navigate(`/historico/${veiculo.id}`)} className="text-[11px] text-app-accent font-semibold transition">Ver tudo</button>
               </div>
 
-              {/* Lista em Linha do Tempo Vazia por enquanto */}
+              {/* Lista em Linha do Tempo */}
               <div className="flex flex-col gap-3">
-                  <div className="text-center py-6 bg-app-card/30 rounded-2xl border border-app-border border-dashed">
-                    <p className="text-app-textMuted text-xs">Nenhum histórico registrado ainda.</p>
-                  </div>
+                  {registros.length === 0 ? (
+                    <div className="text-center py-6 bg-app-card/30 rounded-2xl border border-app-border border-dashed">
+                      <p className="text-app-textMuted text-xs">Nenhum histórico registrado ainda.</p>
+                    </div>
+                  ) : (
+                    registros.slice(0, 3).map((registro, idx) => {
+                      const conf = getIcon(registro.tipo);
+                      const isCombustivel = registro.tipo === 'combustivel';
+                      const dataObj = new Date(registro.data_registro);
+                      const dataLocal = new Date(dataObj.getTime() + dataObj.getTimezoneOffset() * 60000);
+                      
+                      return (
+                        <div key={registro.id} onClick={() => navigate(`/historico/${veiculo.id}`)} className="relative timeline-item cursor-pointer group active:scale-[0.98] transition">
+                            {idx !== Math.min(registros.length, 3) - 1 && (
+                              <div className="absolute left-[38px] -bottom-4 w-px h-4 bg-app-border z-0 timeline-connector"></div>
+                            )}
+                            <div className="relative z-10 bg-app-card border border-app-border rounded-2xl p-4 shadow-sm group-hover:border-white/10">
+                                <div className="flex gap-3">
+                                    <div className={`w-11 h-11 rounded-full ${conf.bg} border ${conf.border} flex items-center justify-center ${conf.color} flex-shrink-0`}>
+                                        <i className={`fas ${conf.icon} text-sm`}></i>
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="flex justify-between items-start">
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-[10px] font-bold text-app-textMuted uppercase tracking-widest">{registro.tipo}</span>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className="font-bold text-[14px] text-white">
+                                                  {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(registro.valor)}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="flex justify-between items-start mt-0.5">
+                                            <h4 className="font-bold text-white text-[12px] leading-tight mt-0.5">
+                                              {registro.servico_executado || registro.tipo_lavagem || (isCombustivel ? `Abastecimento ${registro.tipo_combustivel || ''}` : 'Registro')}
+                                            </h4>
+                                            <p className="text-[9px] text-app-textMuted whitespace-nowrap ml-2 mt-0.5">
+                                              {dataLocal.toLocaleDateString('pt-BR')}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                      );
+                    })
+                  )}
               </div>
           </div>
 

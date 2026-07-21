@@ -107,11 +107,11 @@ export default function Home() {
           <h2 className="font-bold text-2xl text-white tracking-tight">Visão geral</h2>
           <p className="text-sm text-app-textMuted mt-1">Resumo dos últimos {periodo === 365 ? '12 meses' : `${periodo} dias`}</p>
 
-          <div className="flex items-center justify-center gap-2 mt-6 overflow-x-auto no-scrollbar pb-1">
-            <button onClick={() => setPeriodo(7)} className={`px-4 py-2 rounded-full text-xs whitespace-nowrap transition active:scale-95 ${periodo === 7 ? 'font-bold text-black bg-app-accent shadow-[0_0_10px_rgba(250,204,21,0.2)]' : 'font-semibold text-app-textMuted bg-app-cardInner border border-transparent'}`}>7 dias</button>
-            <button onClick={() => setPeriodo(30)} className={`px-4 py-2 rounded-full text-xs whitespace-nowrap transition active:scale-95 ${periodo === 30 ? 'font-bold text-black bg-app-accent shadow-[0_0_10px_rgba(250,204,21,0.2)]' : 'font-semibold text-app-textMuted bg-app-cardInner border border-transparent'}`}>30 dias</button>
-            <button onClick={() => setPeriodo(90)} className={`px-4 py-2 rounded-full text-xs whitespace-nowrap transition active:scale-95 ${periodo === 90 ? 'font-bold text-black bg-app-accent shadow-[0_0_10px_rgba(250,204,21,0.2)]' : 'font-semibold text-app-textMuted bg-app-cardInner border border-transparent'}`}>90 dias</button>
-            <button onClick={() => setPeriodo(365)} className={`px-4 py-2 rounded-full text-xs whitespace-nowrap transition active:scale-95 ${periodo === 365 ? 'font-bold text-black bg-app-accent shadow-[0_0_10px_rgba(250,204,21,0.2)]' : 'font-semibold text-app-textMuted bg-app-cardInner border border-transparent'}`}>12 meses</button>
+          <div className="flex items-center gap-1.5 mt-6 overflow-x-auto no-scrollbar pb-1">
+            <button onClick={() => setPeriodo(7)} className={`px-3.5 py-1.5 rounded-full text-[11px] whitespace-nowrap transition active:scale-95 ${periodo === 7 ? 'font-bold text-black bg-app-accent shadow-[0_0_10px_rgba(250,204,21,0.2)]' : 'font-semibold text-app-textMuted bg-app-cardInner border border-transparent'}`}>7 dias</button>
+            <button onClick={() => setPeriodo(30)} className={`px-3.5 py-1.5 rounded-full text-[11px] whitespace-nowrap transition active:scale-95 ${periodo === 30 ? 'font-bold text-black bg-app-accent shadow-[0_0_10px_rgba(250,204,21,0.2)]' : 'font-semibold text-app-textMuted bg-app-cardInner border border-transparent'}`}>30 dias</button>
+            <button onClick={() => setPeriodo(90)} className={`px-3.5 py-1.5 rounded-full text-[11px] whitespace-nowrap transition active:scale-95 ${periodo === 90 ? 'font-bold text-black bg-app-accent shadow-[0_0_10px_rgba(250,204,21,0.2)]' : 'font-semibold text-app-textMuted bg-app-cardInner border border-transparent'}`}>90 dias</button>
+            <button onClick={() => setPeriodo(365)} className={`px-3.5 py-1.5 rounded-full text-[11px] whitespace-nowrap transition active:scale-95 ${periodo === 365 ? 'font-bold text-black bg-app-accent shadow-[0_0_10px_rgba(250,204,21,0.2)]' : 'font-semibold text-app-textMuted bg-app-cardInner border border-transparent'}`}>12 meses</button>
           </div>
 
           <div className="grid grid-cols-3 gap-2 mt-5">

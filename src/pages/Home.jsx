@@ -44,16 +44,61 @@ export default function Home() {
       if (!rError && rData) {
         const gasto = rData.reduce((acc, curr) => acc + (curr.valor || 0), 0);
         
-        // Exemplo simplificado de KM e Consumo baseado nos registros do periodo
-        const abastecimentos = rData.filter(r => r.tipo === 'combustivel');
-        const litros = abastecimentos.reduce((acc, curr) => acc + (curr.litros || 0), 0);
-        // Considerando KM como o total de km rodados se os hodometros fizessem sentido, 
-        // mas de forma simples vamos usar 0 ou algo mockado / estimado se não houver dados complexos.
+        // Calculo Real de Consumo (km/L) e KM rodado
+        const abastecimentos = rData.filter(r => r.tipo === 'combustivel' && r.hodometro && r.litros);
+        let totalKmConsumo = 0;
+        let totalLitersConsumo = 0;
         
+        const porVeiculo = abastecimentos.reduce((acc, curr) => {
+          if (!acc[curr.veiculo_id]) acc[curr.veiculo_id] = [];
+          acc[curr.veiculo_id].push(curr);
+          return acc;
+        }, {});
+
+        for (const vId in porVeiculo) {
+          const regs = porVeiculo[vId].sort((a, b) => a.hodometro - b.hodometro);
+          let startOdo = null;
+          let accLiters = 0;
+          for (const r of regs) {
+            if (r.tanque_cheio) {
+              if (startOdo !== null && r.hodometro > startOdo) {
+                totalKmConsumo += (r.hodometro - startOdo);
+                totalLitersConsumo += accLiters + r.litros;
+              }
+              startOdo = r.hodometro;
+              accLiters = 0;
+            } else {
+              if (startOdo !== null) {
+                accLiters += r.litros;
+              }
+            }
+          }
+        }
+        const consumo = (totalLitersConsumo > 0 && totalKmConsumo > 0) ? (totalKmConsumo / totalLitersConsumo).toFixed(1) : '--';
+
+        // Calculo de KM total
+        let totalKmRodado = 0;
+        const odosPorVeiculo = rData.reduce((acc, curr) => {
+          if (curr.hodometro) {
+            if (!acc[curr.veiculo_id]) acc[curr.veiculo_id] = [];
+            acc[curr.veiculo_id].push(curr.hodometro);
+          }
+          return acc;
+        }, {});
+
+        for (const vId in odosPorVeiculo) {
+          const odos = odosPorVeiculo[vId];
+          if (odos.length > 1) {
+            const min = Math.min(...odos);
+            const max = Math.max(...odos);
+            totalKmRodado += (max - min);
+          }
+        }
+
         setEstatisticas({
             gasto,
-            consumo: litros > 0 ? (litros * 11).toFixed(1) : '--', // Placeholder formula 
-            km: rData.length > 0 ? rData.length * 150 : '--' // Placeholder formula
+            consumo,
+            km: totalKmRodado > 0 ? totalKmRodado : '--'
         });
       }
     }

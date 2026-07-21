@@ -60,6 +60,7 @@ export default function NovoRegistro() {
   const [tipoCombustivel, setTipoCombustivel] = useState('Gasolina comum');
   const [litros, setLitros] = useState('');
   const [precoLitro, setPrecoLitro] = useState('');
+  const [tanqueCheio, setTanqueCheio] = useState(false);
 
   const [servicoExecutado, setServicoExecutado] = useState('');
   const [garantiaAte, setGarantiaAte] = useState('');
@@ -109,8 +110,9 @@ export default function NovoRegistro() {
 
       if (selectedType === 'combustivel') {
         payload.tipo_combustivel = tipoCombustivel;
-        payload.litros = litros ? parseFloat(litros.replace(',', '.')) : null;
-        payload.preco_litro = precoLitro ? parseFloat(precoLitro.replace(',', '.')) : null;
+        payload.litros = litros ? parseFloat(litros.toString().replace(',', '.')) : null;
+        payload.preco_litro = precoLitro ? parseFloat(precoLitro.toString().replace(',', '.')) : null;
+        payload.tanque_cheio = tanqueCheio;
       } else if (selectedType === 'manutencao' || selectedType === 'revisao') {
         payload.servico_executado = servicoExecutado;
         payload.garantia_ate = garantiaAte || null;
@@ -242,6 +244,17 @@ export default function NovoRegistro() {
                                   <input type="number" step="0.01" value={litros} onChange={e => setLitros(e.target.value)} placeholder="0" className="bg-transparent w-full focus:outline-none text-app-accent font-semibold text-[15px] placeholder-neutral-600" />
                                   <span className="text-[10px] font-bold text-neutral-600 ml-1">L</span>
                               </div>
+                          </div>
+                      </div>
+                      <div className="py-3.5 border-t border-app-border flex justify-between items-center">
+                          <label className="flex items-center gap-1.5 text-[11px] font-bold text-white tracking-wide">
+                              Completou o tanque?
+                          </label>
+                          <div 
+                              onClick={() => setTanqueCheio(!tanqueCheio)}
+                              className={`w-11 h-6 rounded-full relative cursor-pointer transition-colors duration-300 ${tanqueCheio ? 'bg-app-accent' : 'bg-app-cardInner border border-app-border'}`}
+                          >
+                              <div className={`absolute top-1 left-1 w-4 h-4 rounded-full transition-transform duration-300 ${tanqueCheio ? 'translate-x-5 bg-black' : 'bg-app-textMuted'}`}></div>
                           </div>
                       </div>
                   </div>

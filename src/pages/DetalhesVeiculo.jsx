@@ -84,9 +84,38 @@ export default function DetalhesVeiculo() {
   });
   
   const gastoMes = registrosMes.reduce((acc, r) => acc + (r.valor || 0), 0);
-  const abastecimentosMes = registrosMes.filter(r => r.tipo === 'combustivel');
-  const litrosMes = abastecimentosMes.reduce((acc, r) => acc + (r.litros || 0), 0);
-  const consumoMedio = litrosMes > 0 ? (litrosMes * 11).toFixed(1) : '--';
+  const calculateRealConsumo = (regs) => {
+    const abastecimentos = regs
+      .filter(r => r.tipo === 'combustivel' && r.hodometro && r.litros)
+      .sort((a, b) => a.hodometro - b.hodometro);
+      
+    let startOdo = null;
+    let totalKm = 0;
+    let totalLiters = 0;
+    let accLiters = 0;
+
+    for (const r of abastecimentos) {
+      if (r.tanque_cheio) {
+        if (startOdo !== null && r.hodometro > startOdo) {
+          totalKm += (r.hodometro - startOdo);
+          totalLiters += accLiters + r.litros;
+        }
+        startOdo = r.hodometro;
+        accLiters = 0;
+      } else {
+        if (startOdo !== null) {
+          accLiters += r.litros;
+        }
+      }
+    }
+    
+    if (totalLiters > 0 && totalKm > 0) {
+      return (totalKm / totalLiters).toFixed(1);
+    }
+    return '--';
+  };
+
+  const consumoMedio = calculateRealConsumo(registros);
 
   return (
     <>
